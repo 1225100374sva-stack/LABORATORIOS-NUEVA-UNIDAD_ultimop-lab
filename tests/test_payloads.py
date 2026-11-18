@@ -73,3 +73,10 @@ def test_is_subset_listas():
     assert is_subset({"RO": [None]}, {"RO": [None]})
     assert not is_subset({"RO": [None]}, {"RO": []})
     assert not is_subset({"RO": [None]}, {"RO": None})
+
+
+def test_is_subset_nodo_lista_de_ios_xe():
+    deseado = {"name": 201, "description": "MGMT"}
+    assert is_subset(deseado, [{"name": 201, "description": "MGMT", "logging": {}}])
+    assert not is_subset(deseado, [{"name": 201, "description": "OTRA"}])
+    assert not is_subset(deseado, [])

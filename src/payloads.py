@@ -31,7 +31,13 @@ def build_items(cfg):
 
 
 def is_subset(desired, current):
-    """True si todo lo deseado ya existe en la configuración actual."""
+    """True si todo lo deseado ya existe en la configuración actual.
+
+    IOS-XE responde los nodos de lista (Loopback, community) como una lista
+    con un elemento: [{...}]. En ese caso basta con que algún elemento coincida.
+    """
+    if isinstance(desired, dict) and isinstance(current, list):
+        return any(is_subset(desired, c) for c in current)
     if isinstance(desired, dict):
         return isinstance(current, dict) and all(
             k in current and is_subset(v, current[k]) for k, v in desired.items())
