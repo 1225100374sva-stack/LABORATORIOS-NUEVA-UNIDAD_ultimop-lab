@@ -18,7 +18,7 @@ Git -> Pull Request -> pipeline -> RESTCONF.
     src/payloads.py            arma los payloads YANG y compara deseado vs. real
     src/deploy.py              aplica (PUT idempotente); --check = prueba en seco
     src/verify.py              monitoreo: PASS/FAIL por recurso
-    tests/                     36 pruebas pytest con un switch simulado
+    tests/                     38 pruebas pytest con un switch simulado
     .github/workflows/deploy.yml  pipeline CI/CD
 
 ## Pipeline
