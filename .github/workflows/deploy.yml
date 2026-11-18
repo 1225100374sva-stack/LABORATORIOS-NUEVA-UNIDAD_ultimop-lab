@@ -1,0 +1,89 @@
+---
+# deploy.yml - CI/CD del Ejercicio 04 (DevOps con RESTCONF, Cisco IOS-XE)
+#
+#   build   (GitHub)      yamllint + flake8                       -> BUILD
+#   test    (GitHub)      pytest con un switch simulado           -> TEST
+#   dry-run (self-hosted) deploy.py --check contra el equipo real -> TEST
+#   deploy  (self-hosted) deploy.py, 2a corrida y verify.py       -> DEPLOY/OPERATE/MONITOR
+#
+# El sandbox reservable de DevNet solo se alcanza por VPN, así que los jobs que
+# hablan con el router corren en un runner self-hosted (la Mac conectada a la VPN).
+# "deploy" solo corre en main (después del merge del Pull Request).
+name: CI-CD RESTCONF
+
+"on":
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: switch-restconf   # nunca dos despliegues a la vez sobre el mismo equipo
+  cancel-in-progress: false
+
+env:
+  SANDBOX_USER: ${{ secrets.SANDBOX_USER }}
+  SANDBOX_PASS: ${{ secrets.SANDBOX_PASS }}
+  VERIFY_SSL: "false"   # certificado autofirmado del sandbox; en producción "true"
+
+jobs:
+  build:
+    name: Build - lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: yamllint
+        run: yamllint config .github
+      - name: flake8
+        run: flake8 src tests --max-line-length 100
+
+  test:
+    name: Test - unitarias
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: pytest
+        run: pytest -v
+
+  dry-run:
+    name: Test - prueba en seco contra el router
+    needs: test
+    # Solo PRs del propio repo: un fork no debe ejecutar código en la Mac.
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Entorno Python
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -q -r requirements.txt
+      - name: deploy.py --check
+        run: .venv/bin/python src/deploy.py --check
+
+  deploy:
+    name: Deploy + Operate + Monitor
+    needs: dry-run
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Entorno Python
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install -q -r requirements.txt
+      - name: Deploy (PUT RESTCONF)
+        run: .venv/bin/python src/deploy.py
+      - name: Operate - segunda corrida (idempotencia)
+        run: .venv/bin/python src/deploy.py
+      - name: Monitor - verify.py
+        run: .venv/bin/python src/verify.py
