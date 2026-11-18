@@ -63,3 +63,14 @@ def test_main_check_por_linea_de_comandos(switch, capsys):
     salida = capsys.readouterr().out
     assert "Resumen: 4 cambio(s) pendiente(s)" in salida
     assert switch.puts == []
+
+
+def test_respuesta_real_de_ios_xe_con_listas(cfg):
+    # Así responde el router a un GET de un nodo lista: {"modulo:Nodo": [{...}]}.
+    estado = {}
+    for path, payload in build_items(cfg):
+        (raiz, valor), = payload.items()
+        estado[path] = {raiz: [valor]} if isinstance(valor, dict) else payload
+    sw = FakeSwitch(estado)
+    assert reconcile(cfg, sw, out=lambda *_: None) == 0
+    assert sw.puts == []
