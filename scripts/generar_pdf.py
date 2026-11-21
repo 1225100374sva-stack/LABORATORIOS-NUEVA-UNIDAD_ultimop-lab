@@ -63,7 +63,8 @@ FIGURAS = [
      "0 cambios). Monitor: <b>verify.py</b> da <b>4 PASS, 0 FAIL</b>."),
     ("08_tag_release.png", "Release", "Release con el tag <b>v1.0</b> sobre main."),
     ("10_runner_self_hosted.png", "Control de cambios",
-     "Runner <b>self-hosted</b> mac-sebas (mi Mac conectada a la VPN del sandbox)."),
+     "Runner <b>self-hosted</b> mac-sebas (mi Mac conectada a la VPN del sandbox). Aparece Offline porque la reserva del "
+     "sandbox terminó el 18/11 y apagué el runner; los runs anteriores lo usaron."),
     ("11_secrets.png", "Control de cambios",
      "Credenciales guardadas solo en <b>GitHub Secrets</b> (SANDBOX_USER, SANDBOX_PASS)."),
     ("12_branch_protection.png", "Control de cambios",
