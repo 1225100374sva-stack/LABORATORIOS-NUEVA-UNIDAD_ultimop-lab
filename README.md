@@ -4,6 +4,11 @@ Configura un Loopback de gestión y SNMP en un Catalyst 8000v (IOS XE 17.12.02,
 sandbox reservable de Cisco DevNet) **sin tocar la consola**: todo cambio pasa por
 Git -> Pull Request -> pipeline -> RESTCONF.
 
+## 📄 Entrega (reporte y evidencias)
+- Reporte: [`U4ACT04_DevOps_RESTCONF_Sebastian_Villegas_Arredondo.pdf`](U4ACT04_DevOps_RESTCONF_Sebastian_Villegas_Arredondo.pdf)
+- Capturas del pipeline y de GitHub: [`evidencias/`](evidencias/)
+- Generador del PDF: `scripts/generar_pdf.py`
+
 | Recurso | Valor deseado (`config/vars.yml`) |
 |---|---|
 | Loopback201 | 10.201.201.1/32, descripción MGMT-LOOPBACK-DEVOPS |
